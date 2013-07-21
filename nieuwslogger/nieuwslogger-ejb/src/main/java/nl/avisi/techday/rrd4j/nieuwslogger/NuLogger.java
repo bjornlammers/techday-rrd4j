@@ -52,7 +52,9 @@ public class NuLogger {
 
 	private static final String GAUGE_TEMPERATUUR = "temperatuur";
 
-	private static final String RRD_PATH = "/Users/bjolamme/nu.rrd";
+	private static final String RRD4J_FILE = "/Users/bjolamme/nieuwslogger/rrd4j/nu.rrd";
+	
+	private static final String GRAPH_PATH = "/Users/bjolamme/nieuwslogger/graph";
 
 	private static final Logger LOG = Logger.getLogger(NuLogger.class);
 
@@ -79,7 +81,7 @@ public class NuLogger {
     	} else {
         	NuSiteParser parser = new NuSiteParser(nurdspace);
     		try {
-				RrdDb rrdDb = new RrdDb(RRD_PATH);
+				RrdDb rrdDb = new RrdDb(RRD4J_FILE);
 				Sample sample = rrdDb.createSample();
 				long timestamp = Util.getTimestamp(new Date());
 				LOG.info("creating sample with timestamp: " + timestamp);
@@ -131,16 +133,16 @@ public class NuLogger {
 		RrdGraphDef gDef = new RrdGraphDef();
 		gDef.setWidth(800);
 		gDef.setHeight(600);
-		gDef.setFilename("/Users/bjolamme/hourly.png");
+		gDef.setFilename(GRAPH_PATH + "hourly.png");
 		Calendar now = new GregorianCalendar();
 		Calendar oneHourEarlier = new GregorianCalendar();
 		oneHourEarlier.add(Calendar.HOUR, -1);
 		gDef.setStartTime(Util.getTimestamp(oneHourEarlier));
 		gDef.setEndTime(Util.getTimestamp(now));
 		gDef.setTitle("Last hour");
-		gDef.datasource("temperatuur", RRD_PATH, GAUGE_TEMPERATUUR, AVERAGE);
-		gDef.datasource("filelengte", RRD_PATH, GAUGE_LENGTE_FILES, AVERAGE);
-		gDef.datasource("aantal files", RRD_PATH, GAUGE_AANTAL_FILES, AVERAGE);
+		gDef.datasource("temperatuur", RRD4J_FILE, GAUGE_TEMPERATUUR, AVERAGE);
+		gDef.datasource("filelengte", RRD4J_FILE, GAUGE_LENGTE_FILES, AVERAGE);
+		gDef.datasource("aantal files", RRD4J_FILE, GAUGE_AANTAL_FILES, AVERAGE);
 		gDef.area("aantal files", Color.GREEN, "aantal files");
 		gDef.line("temperatuur", Color.RED, "temperatuur", 3f);
 		gDef.line("filelengte", Color.BLUE, "filelengte", 3f);
@@ -169,7 +171,7 @@ public class NuLogger {
     }
     
     private RrdDef createRrdDef() {
-    	String rrdPath = RRD_PATH;
+    	String rrdPath = RRD4J_FILE;
 		RrdDef rrdDef = new RrdDef(rrdPath, 60);
 		rrdDef.addDatasource(GAUGE_TEMPERATUUR, DsType.GAUGE, 60, -30, 50);
 		rrdDef.addDatasource(GAUGE_AANTAL_FILES, DsType.GAUGE, 60, 0, 200);
