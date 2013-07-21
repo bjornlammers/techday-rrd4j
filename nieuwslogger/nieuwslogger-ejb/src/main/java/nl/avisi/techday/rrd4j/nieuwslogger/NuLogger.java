@@ -54,7 +54,7 @@ public class NuLogger {
 
 	private static final String RRD4J_FILE = "/Users/bjolamme/nieuwslogger/rrd4j/nu.rrd";
 	
-	private static final String GRAPH_PATH = "/Users/bjolamme/nieuwslogger/graph";
+	private static final String GRAPH_PATH = "/Users/bjolamme/nieuwslogger/graph/";
 
 	private static final Logger LOG = Logger.getLogger(NuLogger.class);
 
