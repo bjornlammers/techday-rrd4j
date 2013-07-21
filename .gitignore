@@ -1,6 +1,50 @@
+*.log
+application.xml
+
+
 *.class
 
 # Package Files #
 *.jar
 *.war
 *.ear
+
+
+target/
+
+.DS_Store
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Trashes
+
+*.iml
+*.ipr
+*.iws
+.idea/
+
+
+*.pydevproject
+.project
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+
+# External tool builders
+.externalToolBuilders/
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
+
