@@ -14,11 +14,11 @@ import org.junit.Test;
 
 public class NurdspaceSiteParserTest {
 
-	@Test
-	public void testGetTemperatuur() throws IOException, URISyntaxException {
-		String closed = IOUtils.toString(Thread.currentThread().getContextClassLoader().getResource("nurdspace-closed.html").toURI());
-    	Document doc = Jsoup.parse(closed);
-		NurdspaceSiteParser parser = new NurdspaceSiteParser(doc);
-		assertEquals(new Float(Float.parseFloat("26.0")), parser.getTemperatuur());
-	}
+    @Test
+    public void testGetTemperatuur() throws IOException, URISyntaxException {
+        String closed = IOUtils.toString(Thread.currentThread().getContextClassLoader().getResource("nurdspace-closed.html").toURI());
+        Document doc = Jsoup.parse(closed);
+        NurdspaceSiteParser parser = new NurdspaceSiteParser(doc);
+        assertEquals(new Float(Float.parseFloat("26.0")), parser.getTemperatuur());
+    }
 }
