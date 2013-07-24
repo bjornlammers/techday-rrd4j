@@ -22,10 +22,7 @@ public class NuSiteParser {
     private final BigDecimal benzineprijs;
     
     public NuSiteParser(final Document site) {
-        Element page = site.getElementById("page");
-        Element pagewrapper = page.getElementById("pagewrapper");
-        Element contentwrapper = pagewrapper.getElementById("contentwrapper");
-        Element rightcolumn = contentwrapper.getElementById("rightcolumn");
+        Element rightcolumn = site.getElementById("rightcolumn");
         Element component = rightcolumn.getElementsByClass("component").get(1);
         Element localnews = component.getElementsByClass("localnews").first();
         Element content = localnews.getElementsByClass("content").first();

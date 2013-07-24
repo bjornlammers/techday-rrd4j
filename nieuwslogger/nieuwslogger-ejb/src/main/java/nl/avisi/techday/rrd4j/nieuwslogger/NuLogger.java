@@ -52,9 +52,11 @@ public class NuLogger {
 
     private static final String GAUGE_TEMPERATUUR = "temperatuur";
 
-    private static final String RRD4J_FILE = "/Users/bjolamme/nieuwslogger/rrd4j/nu.rrd";
+    // TODO define this
+    private static final String RRD4J_FILE = "/your/path/to/nu.rrd";
     
-    private static final String GRAPH_PATH = "/Users/bjolamme/nieuwslogger/graph/";
+    // TODO define this
+    private static final String GRAPH_PATH = "/your/graphs/folder/";
 
     private static final Logger LOG = Logger.getLogger(NuLogger.class);
 
