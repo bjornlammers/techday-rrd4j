@@ -5,7 +5,6 @@ import static org.rrd4j.ConsolFun.AVERAGE;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -36,26 +35,12 @@ import org.rrd4j.graph.RrdGraphDef;
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @LocalBean
 public class NuLogger {
-    private static final String GAUGE_BENZINEPRIJS = "benzineprijs";
-
-    private static final String GAUGE_BEURSWINST = "beurswinst";
-
-    private static final String GAUGE_BEURSKOERS = "beurskoers";
-
-    private static final String GAUGE_WERKZAAMHEDEN_TREIN = "werkzaamhedenTrein";
-
-    private static final String GAUGE_STORINGEN_TREIN = "storingenTrein";
-
-    private static final String GAUGE_LENGTE_FILES = "lengteFiles";
-
-    private static final String GAUGE_AANTAL_FILES = "aantalFiles";
-
     private static final String GAUGE_TEMPERATUUR = "temperatuur";
 
-    // TODO define this
+    // TODO: define this
     private static final String RRD4J_FILE = "/your/path/to/nu.rrd";
     
-    // TODO define this
+    // TODO: define this
     private static final String GRAPH_PATH = "/your/graphs/folder/";
 
     private static final Logger LOG = Logger.getLogger(NuLogger.class);
@@ -74,14 +59,14 @@ public class NuLogger {
         checkRrdFile();
     }
     
-    @Schedule(hour = "*", minute = "*", second = "0,10,20,30,40,50", persistent = false)
+    /* TODO: schedule this method to collect data at a convenient interval */
     public void retrieveData() {
         LOG.debug("Retrieving data");
-        Document nurdspace = getRemoteStatus();
-        if (nurdspace == null) {
+        Document nusite = getRemoteStatus();
+        if (nusite == null) {
             LOG.warn("Data could not be retrieved");
         } else {
-            NuSiteParser parser = new NuSiteParser(nurdspace);
+            NuSiteParser parser = new NuSiteParser(nusite);
             try {
                 RrdDb rrdDb = new RrdDb(RRD4J_FILE);
                 Sample sample = rrdDb.createSample();
@@ -92,34 +77,7 @@ public class NuLogger {
                 if (temperatuur != null) {
                     sample.setValue(GAUGE_TEMPERATUUR, temperatuur);
                 }
-                Integer aantalFiles = parser.getAantalFiles();
-                if (aantalFiles != null) {
-                    sample.setValue(GAUGE_AANTAL_FILES, aantalFiles);
-                }
-                Integer lengteFiles = parser.getLengteFiles();
-                if (lengteFiles != null) {
-                    sample.setValue(GAUGE_LENGTE_FILES, lengteFiles);
-                }
-                Integer storingenTrein = parser.getAantalTreinstoringen();
-                if (storingenTrein != null) {
-                    sample.setValue(GAUGE_STORINGEN_TREIN, storingenTrein);
-                }
-                Integer werkzaamhedenTrein = parser.getAantalWerkzaamheden();
-                if (werkzaamhedenTrein != null) {
-                    sample.setValue(GAUGE_WERKZAAMHEDEN_TREIN, werkzaamhedenTrein);
-                }
-                BigDecimal beurskoers = parser.getBeurskoers();
-                if (beurskoers != null) {
-                    sample.setValue(GAUGE_BEURSKOERS, beurskoers.doubleValue());
-                }
-                BigDecimal beurswinst = parser.getBeurswinst();
-                if (beurswinst != null) {
-                    sample.setValue(GAUGE_BEURSWINST, beurswinst.doubleValue());
-                }
-                BigDecimal benzineprijs = parser.getBenzineprijs();
-                if (benzineprijs != null) {
-                    sample.setValue(GAUGE_BENZINEPRIJS, benzineprijs.doubleValue());
-                }
+                // TODO: add other values to the sample
                 sample.update();
                 rrdDb.close();
             } catch (IOException e) {
@@ -130,12 +88,12 @@ public class NuLogger {
     }
     
     @Schedule(hour = "*", minute = "*", second = "15", persistent = false)
-    public void createHourlyGraph() {
-        LOG.info("Creating hourly graph");
+    public void createHourGraph() {
+        LOG.info("Creating hour graphs");
         RrdGraphDef gDef = new RrdGraphDef();
         gDef.setWidth(800);
         gDef.setHeight(600);
-        gDef.setFilename(GRAPH_PATH + "hourly.png");
+        gDef.setFilename(GRAPH_PATH + "temp-hour.png");
         Calendar now = new GregorianCalendar();
         Calendar oneHourEarlier = new GregorianCalendar();
         oneHourEarlier.add(Calendar.HOUR, -1);
@@ -143,21 +101,19 @@ public class NuLogger {
         gDef.setEndTime(Util.getTimestamp(now));
         gDef.setTitle("Last hour");
         gDef.datasource("temperatuur", RRD4J_FILE, GAUGE_TEMPERATUUR, AVERAGE);
-        gDef.datasource("filelengte", RRD4J_FILE, GAUGE_LENGTE_FILES, AVERAGE);
-        gDef.datasource("aantal files", RRD4J_FILE, GAUGE_AANTAL_FILES, AVERAGE);
-        gDef.area("aantal files", Color.GREEN, "aantal files");
         gDef.line("temperatuur", Color.RED, "temperatuur", 3f);
-        gDef.line("filelengte", Color.BLUE, "filelengte", 3f);
+        
+        // TODO: create other graphs, or add other data to this graph
         gDef.setImageInfo("");
         gDef.setPoolUsed(false);
         gDef.setImageFormat("png");
 
-        // create graph finally
+        // create graph
         try {
             new RrdGraph(gDef);
-            LOG.info("Wrote new hourly graph");
+            LOG.info("Wrote new hour graph");
         } catch (IOException e) {
-            LOG.error("Couldn't write hourly graph", e);
+            LOG.error("Couldn't write hour graph", e);
         }
     }
     
@@ -174,15 +130,9 @@ public class NuLogger {
     
     private RrdDef createRrdDef() {
         String rrdPath = RRD4J_FILE;
-        RrdDef rrdDef = new RrdDef(rrdPath, 60);
-        rrdDef.addDatasource(GAUGE_TEMPERATUUR, DsType.GAUGE, 60, -30, 50);
-        rrdDef.addDatasource(GAUGE_AANTAL_FILES, DsType.GAUGE, 60, 0, 200);
-        rrdDef.addDatasource(GAUGE_LENGTE_FILES, DsType.GAUGE, 60, 0, 1500);
-        rrdDef.addDatasource(GAUGE_STORINGEN_TREIN, DsType.GAUGE, 60, 0, 100);
-        rrdDef.addDatasource(GAUGE_WERKZAAMHEDEN_TREIN, DsType.GAUGE, 60, 0, 100);
-        rrdDef.addDatasource(GAUGE_BEURSKOERS, DsType.GAUGE, 60, 0, 2000);
-        rrdDef.addDatasource(GAUGE_BEURSWINST, DsType.GAUGE, 60, 0, 100);
-        rrdDef.addDatasource(GAUGE_BENZINEPRIJS, DsType.GAUGE, 60, 0, 5);
+        RrdDef rrdDef = new RrdDef(rrdPath, /* step in seconds */ 60);
+        rrdDef.addDatasource(GAUGE_TEMPERATUUR, DsType.GAUGE, /* TODO: heartbeat in seconds*/ 0, /* TODO: minimum accdeptable value */ 0, /* TODO: maximum acceptable value */ 0);
+        // TODO: add other datasources
         // Keep all data for 1440 rows (= 1440 minutes = 24 hours = 1 day); half the data points must be valid
         rrdDef.addArchive(AVERAGE, 0, 1, 24 * 60);
         // Keep the aggregates of 5 minutes for 1 week
@@ -197,8 +147,6 @@ public class NuLogger {
         LOG.debug("checkRrdFile: " + rrdFile.getAbsolutePath());
         if (rrdFile.exists()) {
             LOG.info("RRD file exists");
-            
-            // TODO check validity
         } else {
             LOG.warn("RRD file does not exist");
             try {
